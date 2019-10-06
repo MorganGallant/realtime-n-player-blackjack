@@ -66,6 +66,7 @@ func PlayBlackjack(s *BlackjackService) {
 			if action.GetType() == rpc.ClientAction_LEAVE {
 				s.DeletePlayerWithUsername(action.GetUsername())
 				DispatchMessage(s, "%s left the game, restarting the round!", action.GetUsername())
+				fmt.Println("Unregistered Player:", action.GetUsername())
 				goto GAME_START
 			}
 
