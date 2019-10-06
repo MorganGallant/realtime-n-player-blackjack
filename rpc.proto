@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+// The Blackjack service is used to facilitate a realtime game of blackjack
+// with any number of players. This system of communication is a common
+// pattern throughout any realtime application, especially the subscribe model.
+// Thus, this same implementation is similar to how a realtime chat application,
+// like Slack or Facebook Messenger, would go about implementing their features.
+service Blackjack {
+  // A client can subscribe to messages, thus becoming a player in the game of Blackjack.
+  rpc Subscribe(SubscribeRequest) returns (stream ServerResponse) {}
+  // When asked, a client can perform an action (usually by user input).
+  // This is used to allow the user to choose whether to hit or stand.
+  rpc PerformAction(ClientAction) returns (Empty) {}
+}
+
+
+message Empty {}
+
+// A ClientAction is sent to the server and used to denote an action taken
+// by the client (player) of the Blackjack game.
+message ClientAction {
+  enum ClientActionType {
+    HIT = 0;
+    STAND = 1;
+    LEAVE = 2;
+  }
+  ClientActionType type = 1;
+  string username = 2;
+}
+// A user must supply a unique username in order to play the game.
+message SubscribeRequest { string username = 1; }
+
+// The server can send the player one of two actions, either a message or an input
+// request. A message should be printed, wheras an input request should ask the user
+// for user input.
+message ServerResponse {
+  enum ServerResponseType {
+    MESSAGE = 0;
+    NEEDS_INPUT = 1;
+  }
+  ServerResponseType type = 1;
+  string optional_string = 2;
+}
