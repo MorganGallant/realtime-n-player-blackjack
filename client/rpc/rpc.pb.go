@@ -108,6 +108,8 @@ func (m *Empty) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Empty proto.InternalMessageInfo
 
+// A ClientAction is sent to the server and used to denote an action taken
+// by the client (player) of the Blackjack game.
 type ClientAction struct {
 	Type                 ClientAction_ClientActionType `protobuf:"varint,1,opt,name=type,proto3,enum=ClientAction_ClientActionType" json:"type,omitempty"`
 	Username             string                        `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
@@ -155,6 +157,7 @@ func (m *ClientAction) GetUsername() string {
 	return ""
 }
 
+// A user must supply a unique username in order to play the game.
 type SubscribeRequest struct {
 	Username             string   `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -194,6 +197,9 @@ func (m *SubscribeRequest) GetUsername() string {
 	return ""
 }
 
+// The server can send the player one of two actions, either a message or an input
+// request. A message should be printed, wheras an input request should ask the user
+// for user input.
 type ServerResponse struct {
 	Type                 ServerResponse_ServerResponseType `protobuf:"varint,1,opt,name=type,proto3,enum=ServerResponse_ServerResponseType" json:"type,omitempty"`
 	OptionalString       string                            `protobuf:"bytes,2,opt,name=optional_string,json=optionalString,proto3" json:"optional_string,omitempty"`
@@ -288,7 +294,10 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type BlackjackClient interface {
+	// A client can subscribe to messages, thus becoming a player in the game of Blackjack.
 	Subscribe(ctx context.Context, in *SubscribeRequest, opts ...grpc.CallOption) (Blackjack_SubscribeClient, error)
+	// When asked, a client can perform an action (usually by user input).
+	// This is used to allow the user to choose whether to hit or stand.
 	PerformAction(ctx context.Context, in *ClientAction, opts ...grpc.CallOption) (*Empty, error)
 }
 
@@ -343,7 +352,10 @@ func (c *blackjackClient) PerformAction(ctx context.Context, in *ClientAction, o
 
 // BlackjackServer is the server API for Blackjack service.
 type BlackjackServer interface {
+	// A client can subscribe to messages, thus becoming a player in the game of Blackjack.
 	Subscribe(*SubscribeRequest, Blackjack_SubscribeServer) error
+	// When asked, a client can perform an action (usually by user input).
+	// This is used to allow the user to choose whether to hit or stand.
 	PerformAction(context.Context, *ClientAction) (*Empty, error)
 }
 
